@@ -8,7 +8,8 @@ export const maxDuration = 30;
 
 // Define the widget generation tool
 const generate_widget_from_prompt = tool({
-  schema: z.object({
+  description: "Generate a widget from a text prompt",
+  parameters: z.object({
     prompt: z
       .string()
       .describe("Description of the widget to generate"),
@@ -23,13 +24,11 @@ const generate_widget_from_prompt = tool({
         body: JSON.stringify({ prompt }),
       }
     );
-
     if (!res.ok) {
       const txt = await res.text();
       console.error("Tool /api/tools error:", res.status, txt);
       throw new Error(`Widget API failed: ${res.status}`);
     }
-
     const data = await res.json();
     return `### Widget Preview Code\n\`\`\`jsx\n${data.previewCode}\n\`\`\`\n\n**Summary**: ${data.llmSummary}`;
   },
@@ -37,7 +36,6 @@ const generate_widget_from_prompt = tool({
 
 export async function POST(req: Request) {
   const { messages } = await req.json();
-
   const result = await streamText({
     model: openai(aiModel),
     system:
@@ -45,6 +43,5 @@ export async function POST(req: Request) {
     messages: convertToCoreMessages(messages),
     tools: { generate_widget_from_prompt },  // <-- register as an object
   });
-
   return result.toDataStreamResponse();
 }

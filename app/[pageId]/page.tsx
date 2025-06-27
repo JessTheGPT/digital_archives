@@ -23,11 +23,7 @@ export default async function Page({
         <div />
         <Avatars />
       </div>
-
       <Editor />
-
-      <LiveblocksBadge />
     </Room>
   );
 }
-

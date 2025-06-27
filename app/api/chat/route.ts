@@ -7,25 +7,33 @@ import { z } from "zod";
 export const maxDuration = 30;
 
 // Define the widget generation tool
-const generate_widget_from_prompt = tool(
-  z.object({
-    prompt: z.string().describe("Description of the widget to generate"),
+const generate_widget_from_prompt = tool({
+  schema: z.object({
+    prompt: z
+      .string()
+      .describe("Description of the widget to generate"),
   }),
-  async ({ prompt }) => {
+  execute: async ({ prompt }) => {
     console.log("Calling widget generator with prompt:", prompt);
-    const res = await fetch("https://digitalarchives.vercel.app/api/tools", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt }),
-    });
+    const res = await fetch(
+      "https://digitalarchives.vercel.app/api/tools",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      }
+    );
 
-    if (!res.ok) throw new Error("Tool failed");
+    if (!res.ok) {
+      const txt = await res.text();
+      console.error("Tool /api/tools error:", res.status, txt);
+      throw new Error(`Widget API failed: ${res.status}`);
+    }
 
     const data = await res.json();
-
     return `### Widget Preview Code\n\`\`\`jsx\n${data.previewCode}\n\`\`\`\n\n**Summary**: ${data.llmSummary}`;
-  }
-);
+  },
+});
 
 export async function POST(req: Request) {
   const { messages } = await req.json();
@@ -35,7 +43,7 @@ export async function POST(req: Request) {
     system:
       "You generate markdown documents for users. Unless specified, this is a draft. Keep things shortish. No supplementary text.",
     messages: convertToCoreMessages(messages),
-    tools: { generate_widget_from_prompt },  // <--- Fix here: object, not array
+    tools: { generate_widget_from_prompt },  // <-- register as an object
   });
 
   return result.toDataStreamResponse();

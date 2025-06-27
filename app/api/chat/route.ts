@@ -7,14 +7,13 @@ import { z } from "zod";
 export const maxDuration = 30;
 
 // Define the widget generation tool
-const generate_widget_from_prompt = tool({
-  description: "Generate a widget from a text prompt",
-  parameters: z.object({
+const generate_widget_from_prompt = tool(
+  z.object({
     prompt: z
       .string()
       .describe("Description of the widget to generate"),
   }),
-  execute: async ({ prompt }) => {
+  async ({ prompt }) => {
     console.log("Calling widget generator with prompt:", prompt);
     const res = await fetch(
       "https://digitalarchives.vercel.app/api/tools",
@@ -31,8 +30,8 @@ const generate_widget_from_prompt = tool({
     }
     const data = await res.json();
     return `### Widget Preview Code\n\`\`\`jsx\n${data.previewCode}\n\`\`\`\n\n**Summary**: ${data.llmSummary}`;
-  },
-});
+  }
+);
 
 export async function POST(req: Request) {
   const { messages } = await req.json();

@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error('Screenshot error:', error);
     return NextResponse.json(
-      { error: 'Screenshot failed', details: error.message },
+      { error: 'Screenshot failed', details: (error as Error).message },
       { status: 500 }
     );
   }

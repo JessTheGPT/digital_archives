@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     system:
       "You generate markdown documents for users. Unless specified, this is a draft. Keep things shortish. No supplementary text.",
     messages: convertToCoreMessages(messages),
-    tools: { generate_widget_from_prompt },  // <-- register as an object
+    tools: { generate_widget_from_prompt },
   });
   return result.toDataStreamResponse();
 }

@@ -1,38 +1,110 @@
+"use client";
+
 import { Notifications } from "./Notifications";
 import { Logo } from "./Logo";
 import { createRoom } from "../utils/liveblocks";
 import { redirect } from "next/navigation";
 import { CreateIcon } from "../icons/CreateIcon";
-import { ReactNode } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { getPageUrl } from "../config";
 import { PageLinks } from "./PageLinks";
 import { CreateWithAiLink } from "./CreateWithAiLink";
 
-export default async function DefaultLayout({
+export default function DefaultLayout({
   children,
 }: {
   children: ReactNode;
 }) {
-  async function create() {
-    "use server";
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+      if (window.innerWidth >= 768) {
+        setIsSidebarOpen(false);
+      }
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  async function create() {
     const room = await createRoom();
-    redirect(getPageUrl(room.id));
+    window.location.href = getPageUrl(room.id);
   }
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const closeSidebar = () => {
+    if (isMobile) {
+      setIsSidebarOpen(false);
+    }
+  };
+
   return (
-    <div className="flex h-full max-h-full">
-      <div className="w-[240px] h-full bg-gray-50 border-r border-gray-100 flex-shrink-0 flex flex-col">
+    <div className="flex h-full max-h-full relative">
+      {/* Mobile backdrop */}
+      {isMobile && isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={closeSidebar}
+        />
+      )}
+
+      {/* Mobile menu button */}
+      {isMobile && (
+        <button
+          onClick={toggleSidebar}
+          className="fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-md border md:hidden"
+        >
+          <svg 
+            className="w-5 h-5" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            {isSidebarOpen ? (
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M6 18L18 6M6 6l12 12" 
+              />
+            ) : (
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M4 6h16M4 12h16M4 18h16" 
+              />
+            )}
+          </svg>
+        </button>
+      )}
+
+      {/* Sidebar */}
+      <div className={`
+        ${isMobile 
+          ? `fixed top-0 left-0 h-full z-50 transform transition-transform duration-300 ease-in-out ${
+              isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+            }`
+          : 'relative'
+        }
+        w-[240px] bg-gray-50 border-r border-gray-100 flex-shrink-0 flex flex-col
+      `}>
         <div className="flex items-center justify-between p-3">
           <div className="w-28 text-black">
             <Logo />
           </div>
-          <form action={create} className="flex items-center">
-            <button>
-              <span className="sr-only">Create new page</span>
-              <CreateIcon className="w-4 h-4" />
-            </button>
-          </form>
+          <button onClick={create} className="flex items-center">
+            <span className="sr-only">Create new page</span>
+            <CreateIcon className="w-4 h-4" />
+          </button>
         </div>
 
         <div className="p-2 flex flex-col gap-0.5">
@@ -42,10 +114,18 @@ export default async function DefaultLayout({
 
         <div className="text-xs font-medium text-gray-500 mt-6 pl-2">Pages</div>
 
-        <PageLinks />
+        <div onClick={closeSidebar}>
+          <PageLinks />
+        </div>
       </div>
 
-      <div className="relative flex flex-col h-full w-full">{children}</div>
+      {/* Main content */}
+      <div className={`
+        relative flex flex-col h-full w-full
+        ${isMobile ? 'ml-0' : ''}
+      `}>
+        {children}
+      </div>
     </div>
   );
 }

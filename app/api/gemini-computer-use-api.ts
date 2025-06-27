@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Computer use error:', error);
     return NextResponse.json(
-      { error: 'Computer use failed', details: error.message },
+     { error: 'Computer use failed', details: (error as Error).message },
       { status: 500 }
     );
   }

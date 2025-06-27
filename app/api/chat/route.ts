@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     system:
       "You generate markdown documents for users. Unless specified, this is a draft. Keep things shortish. No supplementary text.",
     messages: convertToCoreMessages(messages),
-    tools: [generate_widget_from_prompt],
+    tools: { generate_widget_from_prompt },  // <--- Fix here: object, not array
   });
 
   return result.toDataStreamResponse();

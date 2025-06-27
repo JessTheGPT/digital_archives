@@ -11,34 +11,35 @@ const ComputerUseWithAI = () => {
   const streamRef = useRef(null);
 
   const captureScreenshot = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getDisplayMedia({
-        video: { mediaSource: 'screen' }
-      });
-      
-      const video = document.createElement('video');
-      video.srcObject = stream;
-      video.play();
-      
-      video.addEventListener('loadedmetadata', () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0);
-        
-        const screenshot = canvas.toDataURL('image/png');
-        setCurrentScreenshot(screenshot);
-        
-        // Stop the stream
-        stream.getTracks().forEach(track => track.stop());
-      });
-    } catch (error) {
-      console.error('Screenshot failed:', error);
-      addResult('error', 'Screenshot failed. Please grant screen capture permissions.');
-    }
-  }, []);
+  try {
+    const stream = await navigator.mediaDevices.getDisplayMedia({
+      video: true
+    });
+
+    const video = document.createElement('video');
+    video.srcObject = stream;
+    video.play();
+
+    video.addEventListener('loadedmetadata', () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0);
+
+      const screenshot = canvas.toDataURL('image/png');
+      setCurrentScreenshot(screenshot);
+
+      // Stop the stream
+      stream.getTracks().forEach(track => track.stop());
+    });
+  } catch (error) {
+    console.error('Screenshot failed:', error);
+    addResult('error', 'Screenshot failed. Please grant screen capture permissions.');
+  }
+}, []);
+
 
   const addResult = (type, content, confidence = null) => {
     const result = {

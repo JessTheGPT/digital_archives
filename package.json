@@ -24,6 +24,7 @@
     "@liveblocks/react": "^3.0.0",
     "@liveblocks/react-lexical": "^3.0.0",
     "@liveblocks/react-ui": "^3.0.0",
+    "@liveblocks/yjs": "^3.0.0",
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-popover": "^1.0.7",
     "@types/node": "^18.11.18",
@@ -31,6 +32,8 @@
     "@types/react-dom": "^18.0.10",
     "ai": "^3.3.31",
     "cmdk": "^1.0.0",
+    "codemirror": "^6.0.1",
+    "@codemirror/lang-javascript": "^6.2.1",
     "framer-motion": "^11.2.12",
     "lexical": "0.24.0",
     "markdown-to-jsx": "^7.5.0",
@@ -41,6 +44,8 @@
     "react-textarea-autosize": "^8.5.3",
     "swr": "^2.2.5",
     "typescript": "^5.2.2",
+    "y-codemirror.next": "^0.3.5",
+    "yjs": "^13.6.10",
     "zod": "^3.23.8"
   },
   "devDependencies": {
